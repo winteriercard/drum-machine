@@ -42,6 +42,7 @@
       background: var(--body);
       border-radius: 8px;
       overflow: hidden;
+      width: 736px; /* track-meta(108) + steps(584) + seq-wrap padding(44) */
       box-shadow:
         0 0 0 1px rgba(255,220,150,0.06),
         0 8px 24px rgba(0,0,0,0.55),
@@ -264,8 +265,8 @@
 
     /* ── Mobile: allow horizontal scroll ── */
     @media (max-width: 760px) {
-      body { padding: 0; align-items: flex-start; justify-content: flex-start; overflow-x: auto; }
-      .machine { border-radius: 0; min-width: max-content; }
+      body { padding: 12px 0; }
+      .machine { border-radius: 0; }
     }
   </style>
 </head>
