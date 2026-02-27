@@ -213,6 +213,60 @@
     .pat-btn:hover  { border-color: var(--primary); color: var(--primary); }
     .pat-btn.active { border-color: var(--primary); color: var(--primary);
                       background: rgba(196,104,64,0.16); }
+
+    /* ── Bass Synth section ── */
+    .bass-section { border-top: 1px solid var(--border); padding: 10px 22px 14px; }
+
+    .bass-steps { display: flex; gap: 3px; }
+    .bass-step {
+      width: 32px; height: 34px; border-radius: 3px; flex-shrink: 0;
+      border: 1px solid #1c2535; background: #111720;
+      cursor: pointer; outline: none; user-select: none;
+      display: flex; align-items: center; justify-content: center;
+      font-family: var(--mono); font-size: 8px; color: #304058;
+      transition: background .06s, border-color .06s, box-shadow .06s;
+    }
+    .bass-step:nth-child(4n+1):not(:first-child) { margin-left: 9px; }
+    .bass-step:hover:not(.on) { background: #182030; border-color: #2a3850; }
+    .bass-step.on {
+      background: linear-gradient(155deg, #6080c0 0%, #4060a0 100%);
+      border-color: #7090d0; color: #c8dcff;
+      box-shadow: 0 0 7px rgba(90,130,200,0.45), inset 0 1px 0 rgba(160,200,255,0.2);
+    }
+    .bass-step.on:hover { background: linear-gradient(155deg, #7090d0 0%, #5070b0 100%); }
+    .bass-step.cur     { border-color: rgba(220,170,64,0.7) !important;
+                         box-shadow: inset 0 0 0 2px rgba(220,170,64,0.55); }
+    .bass-step.on.cur  {
+      background: linear-gradient(155deg, #80a8e0 0%, #6080c0 100%);
+      border-color: rgba(220,200,80,0.8) !important;
+      box-shadow: 0 0 14px rgba(90,150,220,0.8), inset 0 0 0 2px rgba(255,220,100,0.7);
+    }
+    .bass-step.ba:not(.on) { border-color: #1c2c40; }
+
+    /* Bass controls row */
+    .bass-controls {
+      display: flex; flex-wrap: wrap; gap: 6px 18px;
+      padding: 10px 0 0; margin-left: 108px;
+    }
+    .bass-ctrl { display: flex; align-items: center; gap: 6px; }
+    .bass-ctrl-label { color: var(--text-dim); font-size: 8px; letter-spacing: 2px; text-transform: uppercase; }
+    .bass-ctrl-val   { color: var(--text-dim); font-size: 9px; min-width: 34px; }
+    .range-bass {
+      -webkit-appearance: none; width: 68px; height: 3px;
+      background: #18202e; border-radius: 2px; outline: none; cursor: pointer;
+    }
+    .range-bass::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 12px; height: 12px;
+      border-radius: 50%; background: #406098; cursor: pointer;
+      transition: background .1s;
+    }
+    .range-bass:hover::-webkit-slider-thumb { background: #6090c8; }
+
+    /* ── Mobile: allow horizontal scroll ── */
+    @media (max-width: 760px) {
+      body { padding: 0; align-items: flex-start; justify-content: flex-start; overflow-x: auto; }
+      .machine { border-radius: 0; min-width: max-content; }
+    }
   </style>
 </head>
 <body>
@@ -239,6 +293,49 @@
       <div class="step-nums" id="stepNums"></div>
     </div>
     <div id="trackList"></div>
+  </div>
+
+  <div class="bass-section">
+    <div class="track">
+      <div class="track-meta">
+        <span class="track-name" id="bassLabel" title="Bass Synth — click to preview"
+              style="color:#6080c0; cursor:pointer;">BSS</span>
+        <input type="range" class="track-vol" id="bassVolSlider" min="0" max="100" value="75">
+      </div>
+      <div class="bass-steps" id="bassSteps"></div>
+    </div>
+    <div class="bass-controls">
+      <div class="bass-ctrl">
+        <span class="bass-ctrl-label">Cut</span>
+        <input type="range" class="range-bass" id="bassCutoff" min="80" max="8000" value="1200">
+        <span class="bass-ctrl-val" id="bassCutoffVal">1.2k</span>
+      </div>
+      <div class="bass-ctrl">
+        <span class="bass-ctrl-label">Res</span>
+        <input type="range" class="range-bass" id="bassRes" min="0" max="20" value="3" step="0.5">
+        <span class="bass-ctrl-val" id="bassResVal">3</span>
+      </div>
+      <div class="bass-ctrl">
+        <span class="bass-ctrl-label">Atk</span>
+        <input type="range" class="range-bass" id="bassAtk" min="1" max="500" value="10">
+        <span class="bass-ctrl-val" id="bassAtkVal">10ms</span>
+      </div>
+      <div class="bass-ctrl">
+        <span class="bass-ctrl-label">Dcy</span>
+        <input type="range" class="range-bass" id="bassDcy" min="10" max="1000" value="150">
+        <span class="bass-ctrl-val" id="bassDcyVal">150ms</span>
+      </div>
+      <div class="bass-ctrl">
+        <span class="bass-ctrl-label">Sus</span>
+        <input type="range" class="range-bass" id="bassSus" min="0" max="100" value="40">
+        <span class="bass-ctrl-val" id="bassSusVal">40%</span>
+      </div>
+      <div class="bass-ctrl">
+        <span class="bass-ctrl-label">Rel</span>
+        <input type="range" class="range-bass" id="bassRel" min="10" max="2000" value="180">
+        <span class="bass-ctrl-val" id="bassRelVal">180ms</span>
+      </div>
+    </div>
   </div>
 
   <div class="bottom-bar">
@@ -493,6 +590,55 @@ const SYNTHS = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
+//  BASS SYNTH
+// ─────────────────────────────────────────────────────────────────────────────
+const BASS_NOTES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+// bassGrid[pattern][step] = { on, note, oct }
+let bassGrid = Array.from({length: PATTERNS}, () =>
+  Array.from({length: STEPS}, () => ({ on: false, note: 'C', oct: 2 })));
+
+let bassParams = { cutoff: 1200, res: 3, atk: 0.010, dcy: 0.15, sus: 0.4, rel: 0.18, vol: 0.75 };
+
+function noteFreq(note, oct) {
+  const midi = (oct + 1) * 12 + BASS_NOTES.indexOf(note);
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+function playBassNote(freq, time) {
+  const c = getCtx(), p = bassParams;
+  const osc1 = c.createOscillator(), osc2 = c.createOscillator();
+  osc1.type = osc2.type = 'sawtooth';
+  osc1.frequency.value = freq;
+  osc2.frequency.value = freq * 1.003; // ~5 cents detune for warmth
+
+  const mix = c.createGain(); mix.gain.value = 0.5;
+  osc1.connect(mix); osc2.connect(mix);
+
+  // Moog-style 24dB/oct: two chained 12dB lowpass biquads
+  const lp1 = c.createBiquadFilter(), lp2 = c.createBiquadFilter();
+  lp1.type = lp2.type = 'lowpass';
+  lp1.frequency.value = lp2.frequency.value = p.cutoff;
+  lp1.Q.value = lp2.Q.value = p.res;
+
+  // ADSR VCA — gate for roughly one step duration
+  const vca = c.createGain();
+  const A = p.atk, D = p.dcy, S = p.sus, R = p.rel;
+  const holdEnd = time + Math.max(A + D + 0.01, stepLen() * 0.8);
+  vca.gain.setValueAtTime(0.0001, time);
+  vca.gain.linearRampToValueAtTime(p.vol, time + A);
+  vca.gain.linearRampToValueAtTime(S * p.vol, time + A + D);
+  vca.gain.setValueAtTime(S * p.vol, holdEnd);
+  vca.gain.linearRampToValueAtTime(0.0001, holdEnd + R);
+
+  mix.connect(lp1); lp1.connect(lp2); lp2.connect(vca); vca.connect(mainBus);
+
+  const stopAt = holdEnd + R + 0.1;
+  osc1.start(time); osc2.start(time);
+  osc1.stop(stopAt); osc2.stop(stopAt);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 //  SEQUENCER
 // ─────────────────────────────────────────────────────────────────────────────
 const LOOKAHEAD = 0.10, TICK = 22;
@@ -501,6 +647,8 @@ function stepLen() { return 60 / bpm / 4; }
 function fireStep(step, time) {
   const row = grid[pattern];
   TRACKS.forEach((tr, i) => { if (row[i][step]) playSample(tr.id, time, volumes[i]); });
+  const bs = bassGrid[pattern][step];
+  if (bs.on) playBassNote(noteFreq(bs.note, bs.oct), time);
 }
 
 function scheduler() {
@@ -512,9 +660,12 @@ function scheduler() {
     const step = curStep;
     const delay = Math.max(0, (t - c.currentTime) * 1000 - 8);
     setTimeout(() => {
-      if (dispStep >= 0)
+      if (dispStep >= 0) {
         document.querySelectorAll(`.step-btn[data-s="${dispStep}"]`).forEach(b => b.classList.remove('cur'));
+        document.querySelectorAll(`.bass-step[data-s="${dispStep}"]`).forEach(b => b.classList.remove('cur'));
+      }
       document.querySelectorAll(`.step-btn[data-s="${step}"]`).forEach(b => b.classList.add('cur'));
+      document.querySelectorAll(`.bass-step[data-s="${step}"]`).forEach(b => b.classList.add('cur'));
       dispStep = step;
     }, delay);
     curStep  = (curStep + 1) % STEPS;
@@ -534,7 +685,7 @@ function play() {
 }
 function stop() {
   playing = false; clearTimeout(schedId);
-  document.querySelectorAll('.step-btn.cur').forEach(b => b.classList.remove('cur'));
+  document.querySelectorAll('.step-btn.cur, .bass-step.cur').forEach(b => b.classList.remove('cur'));
   dispStep = -1;
   document.getElementById('btnPlay').classList.remove('active');
 }
@@ -583,6 +734,83 @@ function refreshGrid() {
   document.querySelectorAll('.step-btn').forEach(btn => {
     btn.classList.toggle('on', grid[pattern][+btn.dataset.t][+btn.dataset.s]);
   });
+  document.querySelectorAll('.bass-step').forEach(btn => {
+    const s = +btn.dataset.s;
+    const step = bassGrid[pattern][s];
+    btn.classList.toggle('on', step.on);
+    btn.querySelector('span').textContent = step.note + step.oct;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  BUILD BASS UI
+// ─────────────────────────────────────────────────────────────────────────────
+function buildBassUI() {
+  const stepsEl = document.getElementById('bassSteps');
+  for (let s = 0; s < STEPS; s++) {
+    const btn = document.createElement('button');
+    btn.className = 'bass-step' + (Math.floor(s / 4) % 2 === 0 ? ' ba' : '');
+    btn.dataset.s = s;
+    const noteSpan = document.createElement('span');
+    noteSpan.textContent = bassGrid[0][s].note + bassGrid[0][s].oct;
+    btn.appendChild(noteSpan);
+
+    // Click: toggle on/off
+    btn.addEventListener('click', () => {
+      const step = bassGrid[pattern][s];
+      step.on = !step.on;
+      btn.classList.toggle('on', step.on);
+      noteSpan.textContent = step.note + step.oct;
+    });
+
+    // Scroll wheel: change note semitone up/down
+    btn.addEventListener('wheel', e => {
+      e.preventDefault();
+      const step = bassGrid[pattern][s];
+      const delta = e.deltaY < 0 ? 1 : -1;
+      let idx = BASS_NOTES.indexOf(step.note) + delta;
+      let oct = step.oct;
+      if (idx > 11) { idx = 0; oct = Math.min(oct + 1, 3); }
+      if (idx < 0)  { idx = 11; oct = Math.max(oct - 1, 1); }
+      step.note = BASS_NOTES[idx]; step.oct = oct;
+      noteSpan.textContent = step.note + step.oct;
+    }, { passive: false });
+
+    stepsEl.appendChild(btn);
+  }
+
+  // Preview on label click
+  document.getElementById('bassLabel').addEventListener('click', () => {
+    playBassNote(noteFreq('C', 2), getCtx().currentTime + 0.01);
+  });
+
+  document.getElementById('bassVolSlider').addEventListener('input', e => {
+    bassParams.vol = +e.target.value / 100;
+  });
+  document.getElementById('bassCutoff').addEventListener('input', e => {
+    const v = +e.target.value; bassParams.cutoff = v;
+    document.getElementById('bassCutoffVal').textContent = v >= 1000 ? (v/1000).toFixed(1)+'k' : v+'Hz';
+  });
+  document.getElementById('bassRes').addEventListener('input', e => {
+    bassParams.res = +e.target.value;
+    document.getElementById('bassResVal').textContent = e.target.value;
+  });
+  document.getElementById('bassAtk').addEventListener('input', e => {
+    const v = +e.target.value; bassParams.atk = v / 1000;
+    document.getElementById('bassAtkVal').textContent = v + 'ms';
+  });
+  document.getElementById('bassDcy').addEventListener('input', e => {
+    const v = +e.target.value; bassParams.dcy = v / 1000;
+    document.getElementById('bassDcyVal').textContent = v + 'ms';
+  });
+  document.getElementById('bassSus').addEventListener('input', e => {
+    const v = +e.target.value; bassParams.sus = v / 100;
+    document.getElementById('bassSusVal').textContent = v + '%';
+  });
+  document.getElementById('bassRel').addEventListener('input', e => {
+    const v = +e.target.value; bassParams.rel = v / 1000;
+    document.getElementById('bassRelVal').textContent = v + 'ms';
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -627,6 +855,7 @@ document.addEventListener('keydown', e => {
 //  INIT
 // ─────────────────────────────────────────────────────────────────────────────
 buildUI();
+buildBassUI();
 (function () {
   const p = grid[0];
   [0, 4, 8, 12].forEach(s => { p[0][s] = true; }); p[0][6] = true;
